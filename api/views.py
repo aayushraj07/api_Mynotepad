@@ -1,9 +1,8 @@
 from flask import Blueprint, jsonify, request
 from . import db
-# from .models import Movie
 from .models import Note
 
-main= Blueprint('main',__name__)
+main = Blueprint('main', __name__)
 
 
 # Add a Note
@@ -18,39 +17,38 @@ def add_note():
 
     return 'Done', 201
 
-#Show Notes
+# Show Notes
 @main.route('/notes')
 def notes():
     note_list = Note.query.all()
     notes = []
 
     for note in note_list:
-        notes.append({'title': note.title, "content": note.content})
+        notes.append({'id': note.id, 'title': note.title,
+                      "content": note.content})
 
     return jsonify({'notes': notes})
 
 
+@main.route('/delete/<id>', methods=['DELETE'])
+def delete(id):
+    note = Note.query.get(id)
+    db.session.delete(note)
+    db.session.commit()
 
-#Update Note
-# @main.route('/product<id>', methods=['PUT'])
-# def update_note(id):
-#     note = Note.query.get(id)
-
-#     title = request.json['title']
-#     content = request.json['content']
-
-#     note.title = title
-#     note.content = content
-    
-#     db.session.commit()
-
-#     return jsonify({'notes':notes})
+    return 'deleted'
 
 
+@main.route('/add_note/<id>', methods=['PUT'])
+def update(id):
+    note = Note.query.get(id)
 
-# #Delete a Note
-# @app.route('/delete/<id>'methods=['DELETE'])
-# def delete_note(id):
-#     note = Note.query.get(id)
-#     db.session(note)
-#     db.session.commit()
+    title = request.json['title']
+    content = request.json['content']
+
+    note.title = title
+    note.content = content
+
+    db.session.commit()
+
+    return 'updated'
